@@ -9,3 +9,5 @@ pip install BeautifulSoup4
 ```
 pip install requests
 ```
+## Usage
+See example.py
