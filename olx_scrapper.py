@@ -108,11 +108,73 @@ class olx_scrap_add:
         s = s.split(',')
         add_number = s[2]
         add_number = add_number[14:]
-        return add_number
+        return add_number\
+
     @staticmethod
     def cleanhtml(raw_html):
         raw_html = str(raw_html)
         cleantext = BeautifulSoup(raw_html, 'html.parser').text
         return cleantext
 
+class olx_page:
+    def __init__(self, link):
+        self.page_link = link
+        self.__html_page = requests.get(self.page_link)
+    def get_ads_list(self):
+        response = self.__html_page
+        soup = BeautifulSoup(response.text, 'html.parser')
+        find = soup.find_all(class_='marginright5 link linkWithHash detailsLink')
+        link_list = []
+        for s in find:
+            link_list.append(self.__get_href(s))
+        find = soup.find_all(class_='marginright5 link linkWithHash detailsLinkPromoted')
+        for s in find:
+            link_list.append(self.__get_href(s))
+        return link_list
+    def get_ads_for_x_pages(self,number_of_pages):
+        page_link = str(self.page_link)
+        pages_list = self.get_pages_to(number_of_pages)
+        ads = []
+        for page in pages_list:
+            o_page = olx_page(page)
+            ads.extend(o_page.get_ads_list())
+        return ads
+    def get_pages_to(self,j):
+        page_link = str(self.page_link)
+        if 'page=' not in page_link:
+            page_link += '?page=1'
+        first_i = int(page_link[-1:])
+        last_i = j
+        pages = []
+        for i in range(first_i, last_i):
+            pages.append(page_link[:-1] + str(i))
+        return pages
+    def get_pages_number(self):
+        response = self.__html_page
+        soup = BeautifulSoup(response.text, 'html.parser')
+        find = soup.find_all(class_='item fleft')
+        find = find[len(find) - 1]
+        find = str(find)
+        find = find[::-1]
+        page_number = ""
+        for i in range(0, len(find)):
+            if find[i].isdigit():
+                page_number += find[i]
+                if find[i + 1].isdigit():
+                    page_number += find[i + 1]
+                    if find[i + 2].isdigit():
+                        page_number += find[i + 2]
+                break
+        return int(page_number[::-1])
 
+    @staticmethod
+    def __cleanhtml(raw_html):
+        raw_html = str(raw_html)
+        cleantext = BeautifulSoup(raw_html, 'html.parser').text
+        return cleantext
+    @staticmethod
+    def __get_href(raw_html):
+        raw_html = str(raw_html)
+        link_with_html = BeautifulSoup(raw_html, 'html.parser')
+        find = link_with_html.a["href"]
+        return find
