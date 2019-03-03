@@ -10,4 +10,5 @@ pip install BeautifulSoup4
 pip install requests
 ```
 ## Usage
-See example.py
+See example1.py for single add
+See example2.py for multiple adds
