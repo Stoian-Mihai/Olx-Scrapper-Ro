@@ -1,9 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 
-
+# This class is used to scrap a single announcement
 class olx_scrap_add:
     def __init__(self,link):
+        # Downloading the page HTML text
         self.page_link = link
         self.__html_page = requests.get(self.page_link)
     def get_description(self):
@@ -11,7 +12,6 @@ class olx_scrap_add:
         soup = BeautifulSoup(response.text, 'html.parser')
         description = soup.find_all(class_='clr lheight20 large')
         description = description[0].get_text()
-        title = soup.find_all(class_='offer-titlebox')
         return description
 
     def get_title(self):
@@ -116,11 +116,13 @@ class olx_scrap_add:
         cleantext = BeautifulSoup(raw_html, 'html.parser').text
         return cleantext
 
+# This class is used to get multiple announcements links.
 class olx_page:
     def __init__(self, link):
         self.page_link = link
         self.__html_page = requests.get(self.page_link)
     def get_ads_list(self):
+        # Here we get all the ads on a specific page
         response = self.__html_page
         soup = BeautifulSoup(response.text, 'html.parser')
         find = soup.find_all(class_='marginright5 link linkWithHash detailsLink')
@@ -132,14 +134,17 @@ class olx_page:
             link_list.append(self.__get_href(s))
         return link_list
     def get_ads_for_x_pages(self,number_of_pages):
-        page_link = str(self.page_link)
+        # Here we take the array of pages created with get_pages_to method.
         pages_list = self.get_pages_to(number_of_pages)
         ads = []
+        # For all those pages we create an olx_page object so that we can call the get_ads_list method.
+        # ads array will be extended with arrays including ads of a specific page
         for page in pages_list:
             o_page = olx_page(page)
             ads.extend(o_page.get_ads_list())
         return ads
     def get_pages_to(self,j):
+        # This method creates an array of links with '/?page='i' ' at the end.
         page_link = str(self.page_link)
         if 'page=' not in page_link:
             page_link += '?page=1'
@@ -150,6 +155,7 @@ class olx_page:
             pages.append(page_link[:-1] + str(i))
         return pages
     def get_pages_number(self):
+        # This method gets the number of available pages that can be scrapped for ads.
         response = self.__html_page
         soup = BeautifulSoup(response.text, 'html.parser')
         find = soup.find_all(class_='item fleft')
@@ -174,6 +180,7 @@ class olx_page:
         return cleantext
     @staticmethod
     def __get_href(raw_html):
+        # Getting a link with href tag from a string of raw_html
         raw_html = str(raw_html)
         link_with_html = BeautifulSoup(raw_html, 'html.parser')
         find = link_with_html.a["href"]
