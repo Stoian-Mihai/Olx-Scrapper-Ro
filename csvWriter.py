@@ -35,7 +35,7 @@ with open('dataBase.csv', 'w', encoding="utf-8") as csvfile:
         # Run time calculation
         start_time = time.time()
         # Pool is used for multiprocessing
-        # Pool will make the code run 12 times faster
+        # Pool will make the code run faster
         p = Pool()
         result = p.map(writeToCSV,adsList)
         p.close()
