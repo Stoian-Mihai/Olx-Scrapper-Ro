@@ -30,7 +30,10 @@ class olx_scrap_add:
         response = self.__html_page
         soup = BeautifulSoup(response.text, 'html.parser')
         price = soup.select('.price-label')
-        price = price[0].get_text()
+        try:
+            price = price[0].get_text()
+        except:
+            return 0
         price_int = 0
         for s in list(price):
             if s.isdigit():
@@ -108,8 +111,13 @@ class olx_scrap_add:
         s = s.split(',')
         add_number = s[2]
         add_number = add_number[14:]
-        return add_number\
-
+        return add_number
+    def get_all(self):
+        # method for getting a dict with all the information about an add
+        dict = {'link': self.page_link, 'title': self.get_title(), 'description': self.get_description(),
+          'price': self.get_price(), 'features': self.get_features(), 'city': self.get_city(),
+          'images': self.get_images(), 'date, time': self.get_date_time(), 'add number': self.get_add_number()}
+        return dict
     @staticmethod
     def cleanhtml(raw_html):
         raw_html = str(raw_html)
